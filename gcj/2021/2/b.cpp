@@ -10,7 +10,7 @@ int a[N+1];
 void solve(){
 	int n; scanf("%d",&n);
 	int ans=0;
-	for(int d=3;d<=n;d++) if(n%d==0) ans=max(ans,a[n/d]);
+	for(int d=3;d<=n;d++) if(n%d==0) ans=max(ans,a[(n-d)/d]+1);
 	printf("%d\n",ans);
 }
 
@@ -26,9 +26,6 @@ int main(){
 		for(int d:D[i]){
 			a[i]=max(a[i],a[(i-d)/d]+1);
 		}
-	}
-	for(int i=N;i>0;i--){
-		a[i]=max(a[i],a[i-1]+1);
 	}
 
 	int t; scanf("%d",&t);
