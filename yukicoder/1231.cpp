@@ -1,0 +1,23 @@
+#include <bits/stdc++.h>
+
+#define rep(i,n) for(int i=0;i<(n);i++)
+
+using namespace std;
+
+const int INF=1<<29;
+
+int main(){
+	int n; scanf("%d",&n);
+	vector<int> a(n);
+	rep(i,n) scanf("%d",&a[i]);
+
+	vector dp(n+1,vector(10,-INF));
+	dp[0][0]=0;
+	rep(i,n){
+		rep(d,10) dp[i+1][d]=dp[i][d];
+		rep(d,10) dp[i+1][(d+a[i])%10]=max(dp[i+1][(d+a[i])%10],dp[i][d]+1);
+	}
+	printf("%d\n",dp[n][0]);
+
+	return 0;
+}

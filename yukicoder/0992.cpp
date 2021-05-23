@@ -1,0 +1,82 @@
+#include <bits/stdc++.h>
+
+#define rep(i,n) for(int i=0;i<(n);i++)
+
+using namespace std;
+
+class mint{
+	static const int MOD=1e9+7;
+	int x;
+public:
+	mint():x(0){}
+	mint(long long y){ x=y%MOD; if(x<0) x+=MOD; }
+
+	mint& operator+=(const mint& m){ x+=m.x; if(x>=MOD) x-=MOD; return *this; }
+	mint& operator-=(const mint& m){ x-=m.x; if(x<   0) x+=MOD; return *this; }
+	mint& operator*=(const mint& m){ x=1LL*x*m.x%MOD; return *this; }
+	mint& operator/=(const mint& m){ return *this*=inverse(m); }
+	mint operator+(const mint& m)const{ return mint(*this)+=m; }
+	mint operator-(const mint& m)const{ return mint(*this)-=m; }
+	mint operator*(const mint& m)const{ return mint(*this)*=m; }
+	mint operator/(const mint& m)const{ return mint(*this)/=m; }
+
+	friend mint inverse(const mint& m){
+		int a=m.x,b=MOD,u=1,v=0;
+		while(b>0){ int t=a/b; a-=t*b; swap(a,b); u-=t*v; swap(u,v); }
+		return u;
+	}
+
+	friend istream& operator>>(istream& is,mint& m){ long long t; is>>t; m=mint(t); return is; }
+	friend ostream& operator<<(ostream& os,const mint& m){ return os<<m.x; }
+	int to_int()const{ return x; }
+};
+
+int main(){
+	int n,a[200000]; scanf("%d",&n);
+	rep(i,n) scanf("%d",&a[i]);
+
+	int dp1[200000];
+	vector<int> lis;
+	rep(i,n){
+		auto it=lower_bound(lis.begin(),lis.end(),a[i]);
+		if(it!=lis.end()){
+			*it=a[i];
+			dp1[i]=it-lis.begin();
+		}
+		else{
+			lis.emplace_back(a[i]);
+			dp1[i]=lis.size()-1;
+		}
+	}
+
+	int len=lis.size();
+	vector<vector<int>> V(len);
+	rep(i,n) V[dp1[i]].emplace_back(i);
+
+	mint dp2[200000];
+	for(int u:V[0]) dp2[u]=1;
+	rep(t,len-1){
+		int m=V[t].size();
+		vector<int> W(m);
+		vector<mint> sum(m+1);
+		rep(i,m){
+			int u=V[t][i];
+			W[i]=a[u];
+			sum[i+1]=sum[i]+dp2[u];
+		}
+
+		int idx_l=0,idx_r=0;
+		rep(i,V[t+1].size()){
+			int u=V[t+1][i];
+			while(idx_l<m && W[idx_l]>=a[u]) idx_l++;
+			while(idx_r<m && V[t][idx_r]<u) idx_r++;
+			dp2[u]=sum[idx_r]-sum[idx_l];
+		}
+	}
+
+	mint ans=0;
+	for(int u:V[len-1]) ans+=dp2[u];
+	printf("%d\n",ans.to_int());
+
+	return 0;
+}
