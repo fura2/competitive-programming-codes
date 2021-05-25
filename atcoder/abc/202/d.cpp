@@ -5,14 +5,19 @@
 using namespace std;
 using lint=long long;
 
-int main(){
-	lint nCr[61][61]={};
-	rep(i,61){
-		nCr[i][0]=1;
+vector<vector<long long>> binomial_table(int n){
+	vector C(n+1,vector(n+1,0LL));
+	rep(i,n+1){
+		C[i][0]=1;
 		for(int j=1;j<=i;j++){
-			nCr[i][j]=nCr[i-1][j-1]+nCr[i-1][j];
+			C[i][j]=C[i-1][j-1]+C[i-1][j];
 		}
 	}
+	return C;
+}
+
+int main(){
+	auto nCr=binomial_table(60);
 
 	int a,b;
 	lint k; cin>>a>>b>>k;
