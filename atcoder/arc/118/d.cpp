@@ -42,7 +42,7 @@ int main(){
 	vector<int> f(p); // (Z/pZ)^x -> (Z/(p-1)Z, +)
 	vector<int> g(p); // f^{-1}
 	{
-		int x=1,y=0;
+		lint x=1,y=0;
 		rep(i,p){
 			f[x]=y;
 			g[y]=x;
@@ -54,18 +54,19 @@ int main(){
 	a=f[a];
 	b=f[b];
 
-	int pa=0,pb=0; // periods
-	for(int x=0;;){
-		pa++;
-		x=(x+a)%(p-1);
-		if(x==0) break;
-	}
-	for(int x=0;;){
-		pb++;
-		x=(x+b)%(p-1);
-		if(x==0) break;
+	if(gcd(gcd(a,b),p-1)>1){
+		puts("No");
+		return 0;
 	}
 
+	// periods
+	int pa=(p-1)/gcd(a,p-1);
+	int pb=(p-1)/gcd(b,p-1);
+
+	if(pb==p-1){
+		swap(a,b);
+		swap(pa,pb);
+	}
 	if(pa==p-1){
 		vector<int> res(p);
 		rep(i,p-1) res[i+1]=(res[i]+a)%(p-1);
@@ -73,84 +74,30 @@ int main(){
 		rep(i,p) printf("%d%c",g[res[i]],i<p-1?' ':'\n');
 		return 0;
 	}
-	if(pb==p-1){
-		vector<int> res(p);
-		rep(i,p-1) res[i+1]=(res[i]+b)%(p-1);
-		puts("Yes");
-		rep(i,p) printf("%d%c",g[res[i]],i<p-1?' ':'\n');
-		return 0;
-	}
 
-	if(pa%2==1 && pb%2==1){
-		vector<int> res={0};
-		rep(j,pb-1){
-			if(j%2==0){
-				rep(i,pa-1) res.emplace_back((res.back()+a)%(p-1));
-			}
-			else{
-				rep(j,pa-1) res.emplace_back((res.back()-a+p-1)%(p-1));
-			}
-			res.emplace_back((res.back()+b)%(p-1));
-		}
-		return 0;
+	if(pb%2==1){
+		swap(a,b);
+		swap(pa,pb);
 	}
-	
-	if(pa%2==0){
-		pb=(p-1)/pa;
-		vector<int> res={0};
-		rep(i,pa-1) res.emplace_back((res.back()+a)%(p-1));
-		rep(j,pb-1) res.emplace_back((res.back()+b)%(p-1));
-		rep(i,pa-2){
-			res.emplace_back((res.back()-a+p-1)%(p-1));
-			if(i%2==0){
-				rep(j,pb-2) res.emplace_back((res.back()-b+p-1)%(p-1));
-			}
-			else{
-				rep(j,pb-2) res.emplace_back((res.back()+b)%(p-1));
-			}
-		}
-		res.emplace_back((res.back()-a+p-1)%(p-1));
-		rep(j,pb-1) res.emplace_back((res.back()-b+p-1)%(p-1));
+	assert(pb%2==0 && (p-1)%pb==0);
+	pa=(p-1)/pb;
 
-		auto tmp=res;
-		sort(tmp.begin(),tmp.end());
-		vector<int> c(p);
-		rep(i,p-1) c[i+1]=i;
-		if(tmp==c){
-			puts("Yes");
-			rep(i,p) printf("%d%c",g[res[i]],i<p-1?' ':'\n');
-			return 0;
+	vector<int> res={0};
+	rep(i,pa-1) res.emplace_back((res.back()+a)%(p-1));
+	rep(j,pb-1){
+		res.emplace_back((res.back()+b)%(p-1));
+		if(j%2==0){
+			rep(i,pa-2) res.emplace_back((res.back()-a+p-1)%(p-1));
+		}
+		else{
+			rep(i,pa-2) res.emplace_back((res.back()+a)%(p-1));
 		}
 	}
-	if(pb%2==0){
-		pa=(p-1)/pb;
-		vector<int> res={0};
-		rep(i,pb-1) res.emplace_back((res.back()+b)%(p-1));
-		rep(j,pa-1) res.emplace_back((res.back()+a)%(p-1));
-		rep(i,pb-2){
-			res.emplace_back((res.back()-b+p-1)%(p-1));
-			if(i%2==0){
-				rep(j,pa-2) res.emplace_back((res.back()-a+p-1)%(p-1));
-			}
-			else{
-				rep(j,pa-2) res.emplace_back((res.back()+a)%(p-1));
-			}
-		}
-		res.emplace_back((res.back()-b+p-1)%(p-1));
-		rep(j,pa-1) res.emplace_back((res.back()-a+p-1)%(p-1));
+	res.emplace_back((res.back()-a+p-1)%(p-1));
+	rep(j,pb-1) res.emplace_back((res.back()-b+p-1)%(p-1));
 
-		auto tmp=res;
-		sort(tmp.begin(),tmp.end());
-		vector<int> c(p);
-		rep(i,p-1) c[i+1]=i;
-		if(tmp==c){
-			puts("Yes");
-			rep(i,p) printf("%d%c",g[res[i]],i<p-1?' ':'\n');
-			return 0;
-		}
-	}
-
-	puts("No");
+	puts("Yes");
+	rep(i,p) printf("%d%c",g[res[i]],i<p-1?' ':'\n');
 
 	return 0;
 }
