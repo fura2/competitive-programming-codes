@@ -13,7 +13,7 @@ public:
 
 	mint& operator+=(const mint& m){ x+=m.x; if(x>=MOD) x-=MOD; return *this; }
 	mint& operator-=(const mint& m){ x-=m.x; if(x<   0) x+=MOD; return *this; }
-	mint& operator*=(const mint& m){ x=1LL*x*m.x%MOD; return *this; }
+	mint& operator*=(const mint& m){ x=(long long)x*m.x%MOD; return *this; }
 	mint& operator/=(const mint& m){ return *this*=inverse(m); }
 	mint operator+(const mint& m)const{ return mint(*this)+=m; }
 	mint operator-(const mint& m)const{ return mint(*this)-=m; }
@@ -43,7 +43,7 @@ mint pow(mint m,long long k){
 	return res;
 }
 
-mint fact(int n){
+mint factorial(int n){
 	static vector<mint> memo={1};
 	if(memo.size()<=n){
 		int k=memo.size();
@@ -53,12 +53,12 @@ mint fact(int n){
 	return memo[n];
 }
 
-mint fact_inverse(int n){
+mint factorial_inverse(int n){
 	static vector<mint> memo={1};
 	if(memo.size()<=n){
 		int k=memo.size();
 		memo.resize(n+1);
-		memo[n]=inverse(fact(n));
+		memo[n]=inverse(factorial(n));
 		for(int i=n;i>k;i--) memo[i-1]=memo[i]*i;
 	}
 	return memo[n];
@@ -68,11 +68,11 @@ mint choose(int n,int k,int type=0){
 	if(k==0) return 1;
 	if(n< k) return 0;
 	if(type==0){
-		return fact(n)*fact_inverse(k)*fact_inverse(n-k);
+		return factorial(n)*factorial_inverse(k)*factorial_inverse(n-k);
 	}
 	else{
 		if(k>n-k) k=n-k;
-		mint res=fact_inverse(k);
+		mint res=factorial_inverse(k);
 		rep(i,k) res*=n-i;
 		return res;
 	}
@@ -80,33 +80,32 @@ mint choose(int n,int k,int type=0){
 
 int main(){
 	int n,m; scanf("%d%d",&n,&m);
-	vector<int> p(n);
-	rep(i,n) scanf("%d",&p[i]), p[i]--;
+	vector<int> a(n);
+	rep(i,n) scanf("%d",&a[i]), a[i]--;
 
-	{
-		vector<int> q(n);
-		rep(i,n) q[p[i]]=i;
-		p=q;
-	}
+	mint two[3001]={1};
+	rep(i,m) two[i+1]=two[i]*2;
 
-	mint dp[3001][3001];
+	// dp[i][j] = (i 個の区別できるボールを j 個のグループに分ける方法の数) (Stirling number of the second kind)
+	mint dp[3001][3002]={};
 	dp[0][0]=1;
 	rep(i,m){
 		rep(j,n+1){
-			dp[i+1][j]+=2*j*dp[i][j];
-			if(j<n){
-				dp[i+1][j+1]+=dp[i][j];
-			}
+			dp[i+1][j]+=j*dp[i][j]; // ボール i をすでにあるグループのどれかに加える
+			dp[i+1][j+1]+=dp[i][j]; // ボール i だけからなる新しいグループを作る
 		}
 	}
 
-	mint ans=pow(mint(2),n)*dp[m][n];
-	rep(i,n){
-		int len=0;
-		for(int j=i;j<n;j++) if(p[j]==p[i]+len) {
-			len++;
-			if(m>=n-len){
-				ans+=choose(n-len,p[i])*dp[m][n-len];
+	mint ans=0;
+	rep(i,n+1){
+		for(int j=i;j<=n;j++){
+			int l=i,r=n-j;
+			if(l+r<=m){
+				ans+=dp[m][l+r]*choose(l+r,l)*two[m-l-r];
+			}
+
+			if(i<j && j<n && a[j-1]>a[j]){
+				break;
 			}
 		}
 	}
