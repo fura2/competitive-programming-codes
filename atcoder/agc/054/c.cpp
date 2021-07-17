@@ -37,20 +37,6 @@ mint operator-(long long x,const mint& m){ return mint(x)-m; }
 mint operator*(long long x,const mint& m){ return mint(x)*m; }
 mint operator/(long long x,const mint& m){ return mint(x)/m; }
 
-vector<int> f(vector<int> p,int k){
-	int n=p.size();
-	rep(i,n){
-		int cnt=0;
-		rep(j,i) if(p[j]>p[i]) cnt++;
-		if(cnt>k){
-			swap(p[i-1],p[i]);
-			i=-1;
-			continue;
-		}
-	}
-	return p;
-}
-
 int main(){
 	int n,k; scanf("%d%d",&n,&k);
 	vector<int> p(n);
