@@ -15,6 +15,12 @@
 #define _show5(a, ...) { std::clog << #a << " = " << a << ", "; _show4(__VA_ARGS__); }
 #define show(...) _overload5(__VA_ARGS__, _show5, _show4, _show3, _show2, _show1)(__VA_ARGS__)
 
+template<typename T>
+constexpr inline int bit(T x, unsigned int k) { return (x >> k) & 1; }
+
+template<typename C>
+long ssize(const C& c) { return std::size(c); }  // workaround until C++20
+
 void yes() { std::cout << "Yes\n"; }
 void no() { std::cout << "No\n"; }
 void yesno(bool b) { std::cout << (b ? "Yes" : "No") << "\n"; }
@@ -77,6 +83,14 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& v) {
     return os;
 }
 
+struct Setup {
+    Setup() {
+        std::ios::sync_with_stdio(false);
+        std::cin.tie(nullptr);
+        std::cout << std::fixed << std::setprecision(11);
+    }
+} _setup;
+
 using namespace std;
 
 class Node {
@@ -114,7 +128,7 @@ void add(Node* u, int x, int dep = 0) {
         xor_pre = vl ^ vr;
     }
 
-    int b = x >> (29 - dep) & 1;
+    int b = bit(x, 29 - dep);
     if (b == 0) {
         if (!u->l) u->l = new Node();
         add(u->l, x, dep + 1);
@@ -151,7 +165,7 @@ void erase(Node* u, int x, int dep = 0) {
         xor_pre = vl ^ vr;
     }
 
-    int b = x >> (29 - dep) & 1;
+    int b = bit(x, 29 - dep);
     if (b == 0) {
         erase(u->l, x, dep + 1);
         if (u->l->cnt == 0) {
@@ -178,10 +192,6 @@ void erase(Node* u, int x, int dep = 0) {
 }
 
 int main() {
-    cin.tie(nullptr);
-    ios::sync_with_stdio(false);
-    cout << fixed << setprecision(11);
-
     Node root;
 
     int q; cin >> q;
