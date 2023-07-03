@@ -2,12 +2,18 @@
 
 #define _overload4(a, b, c, d, e, ...) e
 #define _overload5(a, b, c, d, e, f, ...) f
+#define _rep4(i, a, b, c) for (int i = (a); i < (b); i += (c))
+#define _rep3(i, a, b) _rep4(i, a, b, 1)
+#define _rep2(i, n) _rep3(i, 0, n)
 #define _rep1(n) for (int _ = 0; _ < (n); ++_)
-#define _rep2(i, n) for (int i = 0; i < (n); ++i)
-#define _rep3(i, a, b) for (int i = (a); i < (b); ++i)
-#define _rep4(i, a, b, c) for (int i = (a); i < (b); i+=(c))
+#define _rrep4(i, a, b, c) for (int i = (b) - 1; i >= (a); i -= (c))
+#define _rrep3(i, a, b) _rrep4(i, a, b, 1)
+#define _rrep2(i, n) _rrep3(i, 0, n)
+
 #define rep(...) _overload4(__VA_ARGS__, _rep4, _rep3, _rep2, _rep1)(__VA_ARGS__)
+#define rrep(...) _overload4(__VA_ARGS__, _rrep4, _rrep3, _rrep2)(__VA_ARGS__)
 #define all(v) (v).begin(), (v).end()
+
 #define _show1(a) { std::clog << #a << " = " << a << endl; }
 #define _show2(a, ...) { std::clog << #a << " = " << a << ", "; _show1(__VA_ARGS__); }
 #define _show3(a, ...) { std::clog << #a << " = " << a << ", "; _show2(__VA_ARGS__); }
@@ -95,18 +101,16 @@ using namespace std;
 
 class Node {
 public:
-    Node* l;
-    Node* r;
+    Node* child[2];
     int cnt;  // subtree size
     int val;
-    Node():l(nullptr), r(nullptr), cnt(0), val(-1) {}
+    Node(): cnt(0), val(-1) { this->child[0] = this->child[1] = nullptr; }
 };
 
 multiset<int> S;
 
-int find_val(Node* u, int dep) {
-    if (u->l) return find_val(u->l, dep + 1);
-    if (u->r) return find_val(u->r, dep + 1);
+int find_val(Node* u) {
+    rep(b, 2) if (u->child[b]) return find_val(u->child[b]);
     return u->val;
 }
 
@@ -122,26 +126,20 @@ void add(Node* u, int x, int dep = 0) {
     }
 
     int xor_pre = -1;
-    if (u->cnt == 3 && u->l && u->r && u->l->cnt == 1 && u->r->cnt == 1) {
-        int vl = find_val(u->l, dep + 1);
-        int vr = find_val(u->r, dep + 1);
-        xor_pre = vl ^ vr;
+    if (u->cnt == 3 && u->child[0] && u->child[1] && u->child[0]->cnt == 1 && u->child[1]->cnt == 1) {
+        int v0 = find_val(u->child[0]);
+        int v1 = find_val(u->child[1]);
+        xor_pre = v0 ^ v1;
     }
 
     int b = bit(x, 29 - dep);
-    if (b == 0) {
-        if (!u->l) u->l = new Node();
-        add(u->l, x, dep + 1);
-    }
-    else {
-        if (!u->r) u->r = new Node();
-        add(u->r, x, dep + 1);
-    }
+    if (!u->child[b]) u->child[b] = new Node();
+    add(u->child[b], x, dep + 1);
 
-    if (u->cnt == 2 && u->l && u->r && u->l->cnt == 1 && u->r->cnt == 1) {
-        int vl = find_val(u->l, dep + 1);
-        int vr = find_val(u->r, dep + 1);
-        S.emplace(vl ^ vr);
+    if (u->cnt == 2 && u->child[0] && u->child[1] && u->child[0]->cnt == 1 && u->child[1]->cnt == 1) {
+        int v0 = find_val(u->child[0]);
+        int v1 = find_val(u->child[1]);
+        S.emplace(v0 ^ v1);
     }
     if (xor_pre != -1) {
         S.erase(S.find(xor_pre));
@@ -159,32 +157,23 @@ void erase(Node* u, int x, int dep = 0) {
     }
 
     int xor_pre = -1;
-    if (u->cnt == 1 && u->l && u->r && u->l->cnt == 1 && u->r->cnt == 1) {
-        int vl = find_val(u->l, dep + 1);
-        int vr = find_val(u->r, dep + 1);
-        xor_pre = vl ^ vr;
+    if (u->cnt == 1 && u->child[0] && u->child[1] && u->child[0]->cnt == 1 && u->child[1]->cnt == 1) {
+        int v0 = find_val(u->child[0]);
+        int v1 = find_val(u->child[1]);
+        xor_pre = v0 ^ v1;
     }
 
     int b = bit(x, 29 - dep);
-    if (b == 0) {
-        erase(u->l, x, dep + 1);
-        if (u->l->cnt == 0) {
-            delete u->l;
-            u->l = nullptr;
-        }
-    }
-    else {
-        erase(u->r, x, dep + 1);
-        if (u->r->cnt == 0) {
-            delete u->r;
-            u->r = nullptr;
-        }
+    erase(u->child[b], x, dep + 1);
+    if (u->child[b]->cnt == 0) {
+        delete u->child[b];
+        u->child[b] = nullptr;
     }
 
-    if (u->cnt == 2 && u->l && u->r && u->l->cnt == 1 && u->r->cnt == 1) {
-        int vl = find_val(u->l, dep + 1);
-        int vr = find_val(u->r, dep + 1);
-        S.emplace(vl ^ vr);
+    if (u->cnt == 2 && u->child[0] && u->child[1] && u->child[0]->cnt == 1 && u->child[1]->cnt == 1) {
+        int v0 = find_val(u->child[0]);
+        int v1 = find_val(u->child[1]);
+        S.emplace(v0 ^ v1);
     }
     if (xor_pre != -1) {
         S.erase(S.find(xor_pre));
