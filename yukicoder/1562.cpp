@@ -5,5 +5,6 @@
 using namespace std;
 
 int main() {
+    cout << "Knock Dive" << endl;
     return 0;
 }
