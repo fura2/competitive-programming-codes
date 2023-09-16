@@ -9,9 +9,9 @@ int main() {
     rep (i, 3) cin >> s[i];
 
     int ans = INF;
-    rep (i, 3 * m + 1) {
-        rep (j, 3 * m + 1) {
-            rep (k, 3 * m + 1) {
+    rep (i, 3 * m) {
+        rep (j, 3 * m) {
+            rep (k, 3 * m) {
                 if (i == j or i == k or j == k) continue;
                 if (s[0][i % m] == s[1][j % m] and s[0][i % m] == s[2][k % m]) {
                     chmin(ans, max({i, j, k}));
