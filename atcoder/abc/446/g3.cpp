@@ -173,7 +173,8 @@ int main() {
   // sum[i] = (a[0..i) の 221 部分列の個数)
   //        = 1 + Σ_c dp[i][c] (1 は空列の分)
   vector<mint> sum(n + 1, 1);
-  vector<mint> mem(n + 1); // mem[i + 1] = dp[i + 1][a[i]]
+  // mem[i + 1] = (i について dp[a[i]] を更新する直前の dp[a[i]] の値)
+  vector<mint> mem(n + 1);
   rep (i, n) {
     int c = a[i];
     int k = lower_bound(all(pos[c]), i) - pos[c].begin();
