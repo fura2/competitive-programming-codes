@@ -1,3 +1,5 @@
+// verify FenwickTree::max_right and FenwickTree::min_left
+
 #include "template/template.hpp"
 
 // #define MULTI_TESTCASE
@@ -27,11 +29,10 @@ void testcase() {
     auto [a, b] = p[i];
     F.apply(f(a), 1);
     F.apply(f(b), 1);
-    int lo = 0, hi = m;
-    while (hi - lo > 1) {
-      int mi = (lo + hi) / 2;
-      (F.fold(0, mi + 1).unwrap() >= i + 2 ? hi : lo) = mi;
-    }
-    output(X[hi]);
+    int res1 = F.max_right([&](auto v) { return v.unwrap() <= i + 1; });
+    int res2 = F.min_left([&](auto v) { return v.unwrap() <= i + 1; }) - 1;
+    show(res1, res2);
+    assert(res1 == res2);
+    output(X[res1]);
   }
 }
