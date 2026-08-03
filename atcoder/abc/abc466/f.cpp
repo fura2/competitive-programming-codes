@@ -3,32 +3,26 @@
 #define MULTI_TESTCASE
 #include "template/main.hpp"
 
-int n;
 vector<lint> a;
-map<lint, lint> memo[200000];
+unordered_map<lint, lint> memo;
 
-lint f(int i, lint x) {
-  if (a[n - 1] > x) return 1;
+lint f(lint x) {
+  int i = ranges::lower_bound(a, x, greater()) - a.begin();
+  if (i == a.size()) return 1;
 
-  i = ranges::lower_bound(a, x, greater()) - a.begin();
-
-  if (i == n - 1) return x / a[i] + 1;
-
-  if (memo[i].contains(x)) return memo[i][x];
-
-  return memo[i][x] = (x / a[i]) * f(i + 1, a[i] - 1) + f(i + 1, x % a[i]);
+  if (memo.contains(x)) return memo[x];
+  return memo[x] = (x / a[i]) * f(a[i] - 1) + f(x % a[i]);
 }
 
 void testcase() {
-  n = input<int>();
+  auto n = input<int>();
   auto x = input<lint>();
   a.clear();
   rep (i, n) {
-    auto b = input<lint>();
-    if (a.empty() || a.back() > b) a.emplace_back(b);
+    auto e = input<lint>();
+    if (a.empty() || a.back() > e) a.emplace_back(e);
   }
-  n = a.size();
 
-  rep (i, n) memo[i].clear();
-  output(f(0, x) - 1);
+  memo.clear();
+  output(f(x) - 1);
 }
