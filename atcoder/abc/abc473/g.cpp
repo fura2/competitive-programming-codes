@@ -24,14 +24,10 @@ void testcase() {
                    return f.size() > g.size();
                  })>
       Q;
+  Q.push({1});
   rep (i, n - 1) {
-    vector<mint> f(2);
-    f[0] = 1;
-    f[1] = n - i - 1;
-    Q.emplace(f);
+    Q.push({1, n - i - 1});
   }
-  Q.push(vector<mint>{1});
-  Q.push(vector<mint>{1});
   while (Q.size() >= 2) {
     auto f = Q.top();
     Q.pop();
@@ -41,7 +37,7 @@ void testcase() {
     if (p.size() > k - n + 1) {
       p.resize(k - n + 1);
     }
-    Q.emplace(p);
+    Q.push(std::move(p));
   }
   auto p = Q.top();
 
